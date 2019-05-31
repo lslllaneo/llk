@@ -26,7 +26,10 @@ void CGameControl::SetSecPoint(int nRow, int nCol)
 bool CGameControl::Link()
 {
 	//两点是否连通
-	if (m_svSelFirst.row == m_svSelSec.row && m_svSelFirst.col == m_svSelSec.col)
+	if ((m_svSelFirst.row == m_svSelSec.row) && (m_svSelFirst.col == m_svSelSec.col))
+		return false;
+
+	if (m_anMap[m_svSelFirst.row][m_svSelFirst.col] != m_anMap[m_svSelSec.row][m_svSelSec.col])
 		return false;
 
 
