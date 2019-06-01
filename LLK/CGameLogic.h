@@ -2,6 +2,7 @@
 
 #include "global.h"
 #include "CGameControl.h"
+#include "CGraph.h"
 
 class CGameLogic
 {
@@ -11,9 +12,9 @@ protected:
 
 public: 
 	CGameLogic();
-	void InitMap(int  anMap[][4]);
-	bool IsLink(int anMap[][4], Vertex v1, Vertex v2);		//判断两个图片是否可连接
-	void Clear(int anMap[][4], Vertex v1, Vertex v2);		//若可连接则将顶点值置为空
+	void InitMap(CGraph& graph);
+	bool IsLink(CGraph& graph, Vertex v1, Vertex v2);		//判断两个图片是否可连接
+	void Clear(CGraph& graph, Vertex v1, Vertex v2);		//若可连接则将顶点值置为空
 	int GetVexPath(Vertex avPath[4]);		//获取得到路径avPath[4]，并通过参数返回给调用函数，通过返回值返回顶点数
 
 protected:

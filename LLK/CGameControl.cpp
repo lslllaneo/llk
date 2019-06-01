@@ -4,13 +4,13 @@
 void CGameControl::StartGame()
 {
 	CGameLogic gamelogic;
-	gamelogic.InitMap(m_anMap);
+	gamelogic.InitMap(m_graph);
 }
 
 int CGameControl::GetElement(int nRow, int nCol)
 {
 
-	return m_anMap[nRow][nCol];
+	return 0;
 }
 void CGameControl::SetFirstPoint(int nRow, int nCol)
 {
@@ -26,18 +26,17 @@ void CGameControl::SetSecPoint(int nRow, int nCol)
 bool CGameControl::Link(Vertex avPath[4], int &nVexnum)
 {
 	//两点是否连通
-	if ((m_svSelFirst.row == m_svSelSec.row) && (m_svSelFirst.col == m_svSelSec.col))
+	if ((m_svSelFirst.row == m_svSelSec.row) && (m_svSelFirst.col == m_svSelSec.col))		//判断是否是同一个顶点
 		return false;
 
-	if (m_anMap[m_svSelFirst.row][m_svSelFirst.col] != m_anMap[m_svSelSec.row][m_svSelSec.col])
+	if (m_graph.GetVer(m_svSelFirst, m_svSelSec))		//判断两点图形是否一致
 		return false;
-
 
 	CGameLogic gamelogic;
-	if (gamelogic.IsLink(m_anMap, m_svSelFirst, m_svSelSec))
+	if (gamelogic.IsLink(m_graph, m_svSelFirst, m_svSelSec))
 	{
 		nVexnum = gamelogic.GetVexPath(avPath);		
-		gamelogic.Clear(m_anMap, m_svSelFirst, m_svSelSec);
+		gamelogic.Clear(m_graph, m_svSelFirst, m_svSelSec);
 		return true;
 	}
 	return false;

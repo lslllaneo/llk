@@ -2,13 +2,14 @@
 
 #include "global.h"
 #include "CGameLogic.h"
+#include "CGraph.h"
 
 class CGameControl
 {
 protected:
-	int m_anMap[4][4];		//初始化游戏地图为4行、4列
 	Vertex m_svSelFirst;		//选中的第一个点
 	Vertex m_svSelSec;		//选中的第二个点
+	CGraph m_graph;
 
 public:
 	void StartGame(void);

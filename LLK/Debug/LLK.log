@@ -1,2 +1,8 @@
-﻿  CGameDlg.cpp
+﻿  CGameControl.cpp
+  CGameDlg.cpp
+  CGameLogic.cpp
+  CGraph.cpp
+  LLK.cpp
+  LLKDlg.cpp
+  正在生成代码...
   LLK.vcxproj -> G:\program\C++\连连看\Debug\LLK.exe
