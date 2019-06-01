@@ -13,9 +13,15 @@ void CGameLogic::InitMap(CGraph& graph)
 {
 	//游戏地图初始化，固定的值
 	int anTemp[4][4] = { 2,0,1,3,2,2,1,3,2,1,0,0,1,3,0,3 };
-	/*for (int i = 0; i < 4; i++)
+	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
-			anMap[i][j] = anTemp[i][j];*/
+		{
+			Vertex v;
+			v.row = i;
+			v.col = j;
+			v.info = anTemp[i][j];
+			graph.SetVertex(v);
+		}
 }
 
 
@@ -77,9 +83,7 @@ bool CGameLogic::IsLink(CGraph& graph, Vertex v1, Vertex v2)
 		}
 		return true;
 	}*/
-
 		
-
 	return false;
 }
 
@@ -104,61 +108,10 @@ void CGameLogic::PopVertex()
 {
 }
 
-bool CGameLogic::LinkInRow(int anMap[][4], Vertex v1, Vertex v2)
-{
-	int nRow = v1.row;
-	int nCol1 = v1.col;
-	int nCol2 = v2.col;
-
-	//保证nCol1小于nCol2
-	if (nCol1 > nCol2)
-	{
-		int nTemp = nCol1;
-		nCol1 = nCol2;
-		nCol2 = nTemp;
-	}
-
-	//直通
-	for (int i = nCol1 + 1; i <= nCol2; i++)
-	{
-		if (i == nCol2)
-			return true;
-		if (anMap[nRow][i] != BLANK)
-			break;
-	}
-
-	return false;
-}
-
-bool CGameLogic::LinkInCol(int anMap[][4], Vertex v1, Vertex v2)
-{
-	int nRow1 = v1.row;
-	int nCol = v1.col;
-	int nRow2 = v2.row;
-
-	//保证nRow1小于nRow2
-	if (nRow1 > nRow2)
-	{
-		int nTemp = nRow1;
-		nRow1 = nRow2;
-		nRow2 = nTemp;
-	}
-	 
-	//直通
-	for (int i = nRow1 + 1; i <= nRow2; i++)
-	{
-		if (i == nRow2)
-			return true;
-		if (anMap[i][nCol] != BLANK)
-			break;
-	}
-
-	return false;
-}
 
 bool CGameLogic::OneCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 {
-	int nRow1;
+	/*int nRow1;
 	int nCol1;
 	int nRow2;
 	int nCol2;
@@ -231,14 +184,14 @@ bool CGameLogic::OneCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			else 
 				return false;
 		return false;
-	}
+	}*/
 
 	return false;
 }
 
 bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 {
-	int nRow1;
+	/*int nRow1;
 	int nCol1;
 	int nRow2;
 	int nCol2;
@@ -511,36 +464,9 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 						return true;
 					}
 		}
-	}
+	}*/
 
 
 	return false;
 }
 
-bool CGameLogic::LintY(int anMap[][4], int nRow1, int nRow2, int nCol)
-{
-	//判断(nRow1,nCol)到(nRow2,nCol)能否连通
-	for (int nRow = nRow1 + 1; nRow <= nRow2; nRow++)
-	{
-		if (nRow == nRow2)
-			return true;
-
-		if (anMap[nRow][nCol] != BLANK)
-			break;
-	}
-	return false;
-}
-
-bool CGameLogic::LintX(int anMap[][4], int nRow, int nCol1, int nCol2)
-{
-	//判断(nRow,nCol1)到(nRow,nCol2)能否连通
-	for (int nCol = nCol1 + 1; nCol <= nCol2; nCol++)
-	{
-		if (nCol == nCol2)
-			return true;
-
-		if (anMap[nRow][nCol] != BLANK)
-			break;
-	}
-	return false;
-}

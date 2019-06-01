@@ -12,6 +12,8 @@ public:
 	typedef bool AdjMatrix[MAX_VERTEX_NUM][MAX_VERTEX_NUM];
 	void InitGraph();
 	bool GetVer(Vertex v1, Vertex v2);
+	void SetVertex(Vertex v);
+	void GetInfo(Vertex& v);
 
 protected:
 	Vertices m_Vertices;

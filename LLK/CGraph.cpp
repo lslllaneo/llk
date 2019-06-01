@@ -25,3 +25,13 @@ bool CGraph::GetVer(Vertex v1, Vertex v2)
 		return true;
 	return false;
 }
+
+void CGraph::SetVertex(Vertex v)
+{
+	m_Vertices[v.row * 4 + v.col] = v.info;
+}
+
+void CGraph::GetInfo(Vertex& v)
+{
+	v.info = m_Vertices[v.row * 4 + v.col];
+}

@@ -9,8 +9,11 @@ void CGameControl::StartGame()
 
 int CGameControl::GetElement(int nRow, int nCol)
 {
-
-	return 0;
+	Vertex v;
+	v.row = nRow;
+	v.col = nCol;
+	m_graph.GetInfo(v);
+	return v.info;
 }
 void CGameControl::SetFirstPoint(int nRow, int nCol)
 {
