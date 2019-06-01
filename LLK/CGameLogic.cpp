@@ -2,6 +2,12 @@
 #include "pch.h"
 #include "CGameLogic.h"
 
+CGameLogic::CGameLogic()
+{
+	m_VexNum = 0;
+}
+
+
 
 void CGameLogic::InitMap(int anMap[][4])
 {
@@ -24,23 +30,54 @@ bool CGameLogic::IsLink(int anMap[][4], Vertex v1, Vertex v2)
 	if (nRow1 == nRow2)
 	{
 		if (LinkInRow(anMap, v1, v2))
+		{
+			m_VexNum = 2;
+			m_avPath[0] = v1;
+			m_avPath[1] = v2;
 			return true;
+		}
 	}
 	//列号相同时是否连通
 	if (nCol1 == nCol2)
 	{
 		if (LinkInCol(anMap, v1, v2))
+		{
+			m_VexNum = 2;
+			m_avPath[0] = v1;
+			m_avPath[1] = v2;
 			return true;
+		}
 	}
 
 
 	//两条直线连通
 	if (OneCornerLink(anMap, v1, v2))
+	{
+		m_VexNum = 3;
+		m_avPath[0] = v1;
+		m_avPath[2] = v2;
 		return true;
+	}
+		
 
 	//三条直线连通
 	if (TwoCornerLink(anMap, v1, v2))
+	{
+		m_VexNum = 4;
+		if (v2.row >= v1.row)
+		{
+			m_avPath[0] = v1;
+			m_avPath[3] = v2;
+		}
+		else
+		{
+			m_avPath[3] = v1;
+			m_avPath[0] = v2;
+		}
 		return true;
+	}
+
+		
 
 	return false;
 }
@@ -50,13 +87,13 @@ void CGameLogic::Clear(int anMap[][4], Vertex v1, Vertex v2)
 {
 	anMap[v1.row][v1.col] = BLANK;
 	anMap[v2.row][v2.col] = BLANK;
-
-
 }
 
 int CGameLogic::GetVexPath(Vertex avPath[4])
 {
-	return 0;
+	for (int i = 0; i < m_VexNum; i++)
+		avPath[i] = m_avPath[i];
+	return m_VexNum;
 }
 
 void CGameLogic::PushVertex()
@@ -146,7 +183,13 @@ bool CGameLogic::OneCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 	{
 		if (LintX(anMap, nRow1, nCol1, nCol2) && anMap[nRow1][nCol2] == BLANK)
 			if (LintY(anMap, nRow1, nRow2, nCol2))
+			{
+				m_VexNum = 3;				
+				m_avPath[1].col = nCol2;
+				m_avPath[1].row = nRow1;
 				return true;
+			}
+				
 			else
 				k = false;
 		else
@@ -154,14 +197,24 @@ bool CGameLogic::OneCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 
 		if (LintY(anMap, nRow1, nRow2, nCol1) && anMap[nRow2][nCol1] == BLANK)
 			if (LintX(anMap, nRow2, nCol1, nCol2))
+			{
+				m_VexNum = 3;
+				m_avPath[1].row = nRow2;
+				m_avPath[1].col = nCol1;
 				return true;
+			}
 			else return false;
 		return false;
 	}
 	else {
 		if (LintY(anMap, nRow1, nRow2, nCol1) && anMap[nRow2][nCol1] == BLANK)
 			if (LintX(anMap, nRow2, nCol2, nCol1))
+			{
+				m_VexNum = 3;
+				m_avPath[1].row = nRow2;
+				m_avPath[1].col = nCol1;
 				return true;
+			}
 			else
 				k = false;
 		else
@@ -169,7 +222,12 @@ bool CGameLogic::OneCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 
 		if (LintX(anMap, nRow1, nCol2, nCol1) && anMap[nRow1][nCol2] == BLANK)
 			if (LintY(anMap, nRow1, nRow2, nCol2))
+			{
+				m_VexNum = 3;
+				m_avPath[1].col = nCol2;
+				m_avPath[1].row = nRow1;
 				return true;
+			}
 			else 
 				return false;
 		return false;
@@ -207,25 +265,49 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (LintX(anMap, i, nCol1 - 1, nCol2 + 1))
 				if (LintY(anMap, nRow1, i, nCol1))
 					if (LintY(anMap, i, nRow2, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = i;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = i;
 						return true;
+					}
 
 		for (int i = nCol1 + 1; i < nCol2; i++)
 			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
 				if (LintX(anMap, nRow1, nCol1, i))
 					if (LintY(anMap, nRow2, i, nCol2))
+					{
+						m_avPath[1].col = i;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = i;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 
 		for (int i = nRow1 - 1; i >= -1; i--)
 		{
 			if (i == -1)
 				if (LintY(anMap, -1, nRow1, nCol1))
 					if (LintY(anMap, -1, nRow2, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = -1;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = -1;
 						return true;
+					}
 
 			if (LintX(anMap, i, nCol1 - 1, nCol2 + 1))
 				if (LintY(anMap, i, nRow1, nCol1))
 					if (LintY(anMap, i, nRow2, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = i;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = i;
 						return true;
+					}
 		}
 
 		for (int i = nRow2 + 1; i <= 4; i++)
@@ -233,12 +315,24 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (i == 4)
 				if (LintY(anMap, nRow1, 4, nCol1))
 					if (LintY(anMap, nRow2, 4, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = 4;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = 4;
 						return true;
+					}
 
 			if (LintX(anMap, i, nCol1 - 1, nCol2 + 1))
 				if (LintY(anMap, nRow1, i, nCol1))
 					if (LintY(anMap, nRow2, i, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = i;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = i;
 						return true;
+					}
 		}
 
 		for (int i = nCol1 - 1; i >= -1; i--)
@@ -246,12 +340,24 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (i == -1)
 				if (LintX(anMap, nRow1, -1, nCol1))
 					if (LintX(anMap, nRow2, -1, nCol2))
+					{
+						m_avPath[1].col = -1;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = -1;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 
 			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
 				if (LintX(anMap, nRow1, i, nCol1))
 					if (LintX(anMap, nRow2, i, nCol2))
+					{
+						m_avPath[1].col = i;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = i;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 		}
 
 		for (int i = nCol2 + 1; i <= 4; i++)
@@ -259,12 +365,24 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (i == 4)
 				if (LintX(anMap, nRow1, nCol1, 4))
 					if (LintX(anMap, nRow2, nCol2, 4))
+					{
+						m_avPath[1].col = 4;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = 4;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 
 			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
 				if (LintX(anMap, nRow1, nCol1, i))
 					if (LintX(anMap, nRow2, nCol2, i))
+					{
+						m_avPath[1].col = i;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = i;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 		}
 	}
 	else
@@ -273,25 +391,49 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (LintX(anMap, i, nCol2 - 1, nCol1 + 1))
 				if (LintY(anMap, nRow1, i, nCol1))
 					if (LintY(anMap, i, nRow2, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = i;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = i;
 						return true;
+					}
 
 		for (int i = nCol2 + 1; i < nCol1; i++)
 			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
 				if (LintX(anMap, nRow2, nCol2, i))
 					if (LintY(anMap, nRow1, i, nCol1))
+					{
+						m_avPath[1].col = i;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = i;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 
 		for (int i = nRow1 - 1; i >= -1; i--)
 		{
 			if (i == -1)
 				if (LintY(anMap, -1, nRow1, nCol1))
 					if (LintY(anMap, -1, nRow2, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = -1;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = -1;
 						return true;
+					}
 
 			if (LintX(anMap, i, nCol2 - 1, nCol1 + 1))
 				if (LintY(anMap, i, nRow1, nCol1))
 					if (LintY(anMap, i, nRow2, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = i;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = i;
 						return true;
+					}
 
 		}
 
@@ -300,12 +442,24 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (i == 4)
 				if (LintY(anMap, nRow1, 4, nCol1))
 					if (LintY(anMap, nRow2, 4, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = 4;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = 4;
 						return true;
+					}
 
 			if (LintX(anMap, i, nCol2 - 1, nCol1 + 1))
 				if (LintY(anMap, nRow1, i, nCol1))
 					if (LintY(anMap, nRow2, i, nCol2))
+					{
+						m_avPath[1].col = nCol1;
+						m_avPath[1].row = i;
+						m_avPath[2].col = nCol2;
+						m_avPath[2].row = i;
 						return true;
+					}
 		}
 
 		for (int i = nCol2 - 1; i >= -1; i--)
@@ -313,12 +467,24 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (i == -1)
 				if (LintX(anMap, nRow1, -1, nCol1))
 					if (LintX(anMap, nRow2, -1, nCol2))
+					{
+						m_avPath[1].col = -1;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = -1;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 
 			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
 				if (LintX(anMap, nRow1, i, nCol1))
 					if (LintX(anMap, nRow2, i, nCol2))
+					{
+						m_avPath[1].col = i;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = i;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 		}
 
 		for (int i = nCol2 + 1; i <= 4; i++)
@@ -326,12 +492,24 @@ bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
 			if (i == 4)
 				if (LintX(anMap, nRow1, nCol1, 4))
 					if (LintX(anMap, nRow2, nCol2, 4))
+					{
+						m_avPath[1].col = 4;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = 4;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 
 			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
 				if (LintX(anMap, nRow1, nCol1, i))
 					if (LintX(anMap, nRow2, nCol2, i))
+					{
+						m_avPath[1].col = i;
+						m_avPath[1].row = nRow1;
+						m_avPath[2].col = i;
+						m_avPath[2].row = nRow2;
 						return true;
+					}
 		}
 	}
 

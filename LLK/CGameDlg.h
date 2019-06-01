@@ -51,5 +51,5 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 protected:
 	void DrawTipFrame(int nRow, int nCol);
-	void DrawTipLine(Vertex avPath[]);
+	void DrawTipLine(Vertex avPath[], int nVexnum);
 };

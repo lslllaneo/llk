@@ -23,7 +23,7 @@ void CGameControl::SetSecPoint(int nRow, int nCol)
 	m_svSelSec.row = nRow;
 	m_svSelSec.col = nCol;
 }
-bool CGameControl::Link()
+bool CGameControl::Link(Vertex avPath[4], int &nVexnum)
 {
 	//两点是否连通
 	if ((m_svSelFirst.row == m_svSelSec.row) && (m_svSelFirst.col == m_svSelSec.col))
@@ -36,8 +36,8 @@ bool CGameControl::Link()
 	CGameLogic gamelogic;
 	if (gamelogic.IsLink(m_anMap, m_svSelFirst, m_svSelSec))
 	{
-		CGameLogic logic;
-		logic.Clear(m_anMap, m_svSelFirst, m_svSelSec);
+		nVexnum = gamelogic.GetVexPath(avPath);		
+		gamelogic.Clear(m_anMap, m_svSelFirst, m_svSelSec);
 		return true;
 	}
 	return false;

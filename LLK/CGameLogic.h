@@ -7,9 +7,10 @@ class CGameLogic
 {
 protected:
 	Vertex m_avPath[4];		//保存在进行连接判断时所经过的顶点
-	int m_VexNum;		//顶点数
+	int m_VexNum;			//顶点数
 
-public:
+public: 
+	CGameLogic();
 	void InitMap(int  anMap[][4]);
 	bool IsLink(int anMap[][4], Vertex v1, Vertex v2);		//判断两个图片是否可连接
 	void Clear(int anMap[][4], Vertex v1, Vertex v2);		//若可连接则将顶点值置为空

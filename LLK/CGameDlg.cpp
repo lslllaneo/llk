@@ -27,10 +27,10 @@ CGameDlg::CGameDlg(CWnd* pParent /*=nullptr*/)
 	m_bFirstPoint = true;
 
 	//初始化游戏更新区域
-	m_rtGameRect.top = m_ptGameTop.y;
-	m_rtGameRect.left = m_ptGameTop.x;
-	m_rtGameRect.right = m_rtGameRect.left + m_sizeElem.cx * 4;
-	m_rtGameRect.bottom = m_rtGameRect.top + m_sizeElem.cy * 4;
+	m_rtGameRect.top = m_ptGameTop.y - 50;
+	m_rtGameRect.left = m_ptGameTop.x - 50;
+	m_rtGameRect.right = m_rtGameRect.left + m_sizeElem.cx * 5 + 50;
+	m_rtGameRect.bottom = m_rtGameRect.top + m_sizeElem.cy * 5 + 50;
 }
 
 CGameDlg::~CGameDlg()
@@ -196,7 +196,7 @@ void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	}
 	else
 	{
-		Vertex avPath[2];
+		Vertex avPath[4];
 		gamecontrol.GetFirstPoint(avPath[0]);
 
 		DrawTipFrame(nRow, nCol);
@@ -206,9 +206,10 @@ void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 		gamecontrol.SetSecPoint(nRow, nCol);
 
 		//判断是否是相同图片
-		if (gamecontrol.Link())
+		int nVexnum = 0;
+		if (gamecontrol.Link(avPath, nVexnum))
 		{
-			DrawTipLine(avPath);
+			DrawTipLine(avPath, nVexnum);
 			UpdateMap();
 		}
 
@@ -237,7 +238,7 @@ void CGameDlg::DrawTipFrame(int nRow, int nCol)
 
 
 
-void CGameDlg::DrawTipLine(Vertex avPath[])
+void CGameDlg::DrawTipLine(Vertex avPath[], int nVexnum)
 {
 	// TODO: 在此处添加实现代码.
 	CClientDC dc(this);
@@ -245,10 +246,13 @@ void CGameDlg::DrawTipLine(Vertex avPath[])
 	CPen penLine(PS_SOLID, 2, RGB(0, 255, 0));
 	CPen* pOldPen = dc.SelectObject(&penLine);
 
-	dc.MoveTo(m_ptGameTop.x + avPath[0].col * m_sizeElem.cx + m_sizeElem.cx / 2,
-		m_ptGameTop.y + avPath[0].row * m_sizeElem.cy + m_sizeElem.cy / 2);
-	dc.LineTo(m_ptGameTop.x + avPath[1].col * m_sizeElem.cx + m_sizeElem.cx / 2,
-		m_ptGameTop.y + avPath[1].row * m_sizeElem.cy + m_sizeElem.cy / 2);
+	for (int i = 0; i < nVexnum - 1; i++)
+	{
+		dc.MoveTo(m_ptGameTop.x + avPath[i].col * m_sizeElem.cx + m_sizeElem.cx / 2,
+			m_ptGameTop.y + avPath[i].row * m_sizeElem.cy + m_sizeElem.cy / 2);
+		dc.LineTo(m_ptGameTop.x + avPath[i + 1].col * m_sizeElem.cx + m_sizeElem.cx / 2,
+			m_ptGameTop.y + avPath[i + 1].row * m_sizeElem.cy + m_sizeElem.cy / 2);
+	}
 
 	dc.SelectObject(pOldPen);
 }
