@@ -35,3 +35,9 @@ void CGraph::GetInfo(Vertex& v)
 {
 	v.info = m_Vertices[v.row * 4 + v.col];
 }
+
+void CGraph::SetAdj(Vertex& v1, Vertex& v2)
+{
+	m_AdjMatrix[v1.row * 4 + v1.col][v2.row * 4 + v2.col] = true;
+	m_AdjMatrix[v2.row * 4 + v2.col][v1.row * 4 + v1.col] = true;
+}

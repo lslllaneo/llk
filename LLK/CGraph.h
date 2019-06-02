@@ -14,6 +14,7 @@ public:
 	bool GetVer(Vertex v1, Vertex v2);
 	void SetVertex(Vertex v);
 	void GetInfo(Vertex& v);
+	void SetAdj(Vertex& v1, Vertex& v2);
 
 protected:
 	Vertices m_Vertices;

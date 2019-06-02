@@ -22,6 +22,28 @@ void CGameLogic::InitMap(CGraph& graph)
 			v.info = anTemp[i][j];
 			graph.SetVertex(v);
 		}
+	/*for (int i = 0; i < 3; i++)
+		for (int j = 0; j < 3; j++)
+		{
+			if (anTemp[i][j] == anTemp[i][j + 1])
+			{
+				Vertex v1, v2;
+				v1.row = i;
+				v2.col = j;
+				v2.row = i;
+				v2.col = j + 1;
+				graph.SetAdj(v1, v2);
+			}
+			if (anTemp[i][j] == anTemp[i + 1][j])
+			{
+				Vertex v1, v2;
+				v1.row = i;
+				v2.col = j;
+				v2.row = i + 1;
+				v2.col = j;
+				graph.SetAdj(v1, v2);
+			}
+		}*/
 }
 
 
