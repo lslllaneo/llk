@@ -25,12 +25,13 @@ CGameDlg::CGameDlg(CWnd* pParent /*=nullptr*/)
 	m_ptGameTop.y = 50;
 
 	m_bFirstPoint = true;
+	m_bPlaying = false;
 
 	//初始化游戏更新区域
 	m_rtGameRect.top = m_ptGameTop.y - 50;
 	m_rtGameRect.left = m_ptGameTop.x - 50;
-	m_rtGameRect.right = m_rtGameRect.left + m_sizeElem.cx * 5 + 50;
-	m_rtGameRect.bottom = m_rtGameRect.top + m_sizeElem.cy * 5 + 50;
+	m_rtGameRect.right = m_rtGameRect.left + m_sizeElem.cx * 8 + 50;
+	m_rtGameRect.bottom = m_rtGameRect.top + m_sizeElem.cy * 8 + 50;
 }
 
 CGameDlg::~CGameDlg()
@@ -127,6 +128,8 @@ void CGameDlg::OnClickedBtnBegin()
 {
 	// 初始化游戏地图
 	gamecontrol.StartGame();
+	m_bPlaying = true;
+	this->GetDlgItem(IDC_BTN_BEGIN)->EnableWindow(FALSE);
 
 	UpdateMap();
 
@@ -144,8 +147,8 @@ void CGameDlg::UpdateMap()
 	
 	m_dcMem.BitBlt(m_rtGameRect.left, m_rtGameRect.top,
 		m_rtGameRect.Width(), m_rtGameRect.Height(), &m_dcBG, m_rtGameRect.left, m_rtGameRect.top, SRCCOPY);
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
+	for (int i = 1; i < 5; i++)
+		for (int j = 1; j < 5; j++)
 		{
 			int nInfo = gamecontrol.GetElement(i, j);
 			//将背景与掩码相或，边保留，图像区域为1
@@ -182,7 +185,7 @@ void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 
 	int nRow = (point.y - m_ptGameTop.y) / m_sizeElem.cy;
 	int nCol = (point.x - m_ptGameTop.x) / m_sizeElem.cx;
-	if (nRow > 3 || nCol > 3)
+	if (nRow > 5 || nCol > 5)
 	{
 		return CDialogEx::OnLButtonUp(nFlags, point);
 	}
@@ -196,7 +199,7 @@ void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	}
 	else
 	{
-		Vertex avPath[4];
+		Vertex avPath[36];
 		gamecontrol.GetFirstPoint(avPath[0]);
 
 		DrawTipFrame(nRow, nCol);
@@ -218,6 +221,15 @@ void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	}
 
 	m_bFirstPoint = !m_bFirstPoint;
+
+	if (gamecontrol.IsWin())
+	{
+		//提示游戏胜利
+		MessageBox(_T("恭喜获胜！"));
+		m_bPlaying = false;
+		this->GetDlgItem(IDC_BTN_BEGIN)->EnableWindow(TRUE);
+		return;
+	}
 
 	//CDialogEx::OnLButtonUp(nFlags, point);
 }

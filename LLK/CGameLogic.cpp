@@ -4,7 +4,8 @@
 
 CGameLogic::CGameLogic()
 {
-	m_VexNum = 0;
+	m_nVexnum = 0;
+	m_nCorner = 0;
 }
 
 
@@ -12,483 +13,199 @@ CGameLogic::CGameLogic()
 void CGameLogic::InitMap(CGraph& graph)
 {
 	//游戏地图初始化，固定的值
-	int anTemp[4][4] = { 2,0,1,3,2,2,1,3,2,1,0,0,1,3,0,3 };
-	for (int i = 0; i < 4; i++)
-		for (int j = 0; j < 4; j++)
+	int anTemp[6][6] = { -1,-1,-1,-1,-1,-1,-1,2,0,1,3,-1,-1,2,2,1,3,-1,-1,2,1,0,0,-1,-1,1,3,0,3,-1,-1,-1,-1,-1,-1,-1 };
+	for (int i = 0; i < 6; i++)
+		for (int j = 0; j < 6; j++)
 		{
 			Vertex v;
 			v.row = i;
 			v.col = j;
 			v.info = anTemp[i][j];
-			graph.SetVertex(v);
+			graph.AddVertex(v);
 		}
-	/*for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
+	for (int i = 0; i < 6; i++)
+		for (int j = 0; j < 6; j++)
 		{
-			if (anTemp[i][j] == anTemp[i][j + 1])
-			{
-				Vertex v1, v2;
-				v1.row = i;
-				v2.col = j;
-				v2.row = i;
-				v2.col = j + 1;
-				graph.SetAdj(v1, v2);
-			}
-			if (anTemp[i][j] == anTemp[i + 1][j])
-			{
-				Vertex v1, v2;
-				v1.row = i;
-				v2.col = j;
-				v2.row = i + 1;
-				v2.col = j;
-				graph.SetAdj(v1, v2);
-			}
-		}*/
+			Vertex v;
+			v.row = i;
+			v.col = j;
+			UpdateArc(graph, v);
+		}
+}
+
+void CGameLogic::UpdateArc(CGraph& graph, Vertex v)
+{
+	int nV1Index = v.row * 6 + v.col;
+	if (v.row > 0)
+	{
+		int nV2Index = nV1Index - 6;
+		if (graph.GetVertex(nV1Index) == graph.GetVertex(nV2Index))
+			graph.AddArc(nV1Index, nV2Index);
+		if (graph.GetVertex(nV1Index) == BLANK)
+			graph.AddArc(nV1Index, nV2Index);
+	}
+	if (v.col > 0)
+	{
+		int nV2Index = nV1Index - 1;
+		if (graph.GetVertex(nV1Index) == graph.GetVertex(nV2Index))
+			graph.AddArc(nV1Index, nV2Index);
+		if (graph.GetVertex(nV1Index) == BLANK)
+			graph.AddArc(nV1Index, nV2Index);
+	}
+	if (v.row < 5)
+	{
+		int nV2Index = nV1Index + 6;
+		if (graph.GetVertex(nV1Index) == graph.GetVertex(nV2Index))
+			graph.AddArc(nV1Index, nV2Index);
+		if (graph.GetVertex(nV1Index) == BLANK)
+			graph.AddArc(nV1Index, nV2Index);
+	}
+	if (v.col < 5)
+	{
+		int nV2Index = nV1Index + 1;
+		if (graph.GetVertex(nV1Index) == graph.GetVertex(nV2Index))
+			graph.AddArc(nV1Index, nV2Index);
+		if (graph.GetVertex(nV1Index) == BLANK)
+			graph.AddArc(nV1Index, nV2Index);
+	}
 }
 
 
 bool CGameLogic::IsLink(CGraph& graph, Vertex v1, Vertex v2)
 {
-	/*
-	//一条直线连通
-	int nRow1 = v1.row;
-	int nCol1 = v1.col;
-	int nRow2 = v2.row;
-	int nCol2 = v2.col;
-	//行号相同时是否连通
-	if (nRow1 == nRow2)
-	{
-		if (LinkInRow(anMap, v1, v2))
-		{
-			m_VexNum = 2;
-			m_avPath[0] = v1;
-			m_avPath[1] = v2;
-			return true;
-		}
-	}
-	//列号相同时是否连通
-	if (nCol1 == nCol2)
-	{
-		if (LinkInCol(anMap, v1, v2))
-		{
-			m_VexNum = 2;
-			m_avPath[0] = v1;
-			m_avPath[1] = v2;
-			return true;
-		}
-	}
-
-
-	//两条直线连通
-	if (OneCornerLink(anMap, v1, v2))
-	{
-		m_VexNum = 3;
-		m_avPath[0] = v1;
-		m_avPath[2] = v2;
-		return true;
-	}
+	
+	int nV1 = v1.row * 6 + v1.col;
+	int nV2 = v2.row * 6 + v2.col;
+	PushVertex(nV1);
+	return SearchPath(graph, nV1, nV2);
 		
 
-	//三条直线连通
-	if (TwoCornerLink(anMap, v1, v2))
-	{
-		m_VexNum = 4;
-		if (v2.row >= v1.row)
-		{
-			m_avPath[0] = v1;
-			m_avPath[3] = v2;
-		}
-		else
-		{
-			m_avPath[3] = v1;
-			m_avPath[0] = v2;
-		}
-		return true;
-	}*/
-		
-	return false;
 }
 
 
 void CGameLogic::Clear(CGraph& graph, Vertex v1, Vertex v2)
 {
+	int nV1Index = v1.row * 6 + v1.col;
+	int nV2Index = v2.row * 6 + v2.col;
+	graph.UpdateVertex(nV1Index, BLANK);
+	graph.UpdateVertex(nV2Index, BLANK);
+	UpdateArc(graph, v1);
+	UpdateArc(graph, v2);
+}
+
+
+int CGameLogic::GetVexPath(Vertex avPath[16])
+{
+	int i;
+	for (i = 0; i < m_nVexnum; i++)
+	{
+		avPath[i].row = m_anPath[i] / 6;
+		avPath[i].col = m_anPath[i] % 6;
+
+	}
+	m_nVexnum = 0;
+	m_nCorner = 0;
+	return i;
+}
+
+bool CGameLogic::IsBlank(CGraph& g)
+{
+	for (int i = 1; i < 5; i++)
+		for (int j = 1; j < 5; j++)
+		{
+			int nIndex = i * 6 + j;
+			if (g.GetVertex(nIndex) != -1)
+				return false;
+		}
+	return true;
+}
+
+
+void CGameLogic::PushVertex(int n)
+{
+	m_anPath[m_nVexnum] = n;
+	m_nVexnum++;
 	
-}
-
-int CGameLogic::GetVexPath(Vertex avPath[4])
-{
-	for (int i = 0; i < m_VexNum; i++)
-		avPath[i] = m_avPath[i];
-	return m_VexNum;
-}
-
-void CGameLogic::PushVertex()
-{
+	if (IsCornor())
+		m_nCorner++;
 }
 
 void CGameLogic::PopVertex()
 {
+	if (IsCornor())
+		m_nCorner--;
+
+	m_nVexnum--;
 }
 
 
-bool CGameLogic::OneCornerLink(int anMap[][4], Vertex v1, Vertex v2)
+
+bool CGameLogic::SearchPath(CGraph graph, int nV1, int nV2)
 {
-	/*int nRow1;
-	int nCol1;
-	int nRow2;
-	int nCol2;
-	bool k = false;
-	
-	if (v2.row >= v1.row)
-	{
-		nRow1 = v1.row;
-		nCol1 = v1.col;
-		nRow2 = v2.row;
-		nCol2 = v2.col;
-	}
-	else
-	{
-		nRow1 = v2.row;
-		nCol1 = v2.col;
-		nRow2 = v1.row;
-		nCol2 = v1.col;
-	}
-
-	if (nCol2 >= nCol1)
-	{
-		if (LintX(anMap, nRow1, nCol1, nCol2) && anMap[nRow1][nCol2] == BLANK)
-			if (LintY(anMap, nRow1, nRow2, nCol2))
-			{
-				m_VexNum = 3;				
-				m_avPath[1].col = nCol2;
-				m_avPath[1].row = nRow1;
-				return true;
-			}
-				
-			else
-				k = false;
-		else
-			k = false;
-
-		if (LintY(anMap, nRow1, nRow2, nCol1) && anMap[nRow2][nCol1] == BLANK)
-			if (LintX(anMap, nRow2, nCol1, nCol2))
-			{
-				m_VexNum = 3;
-				m_avPath[1].row = nRow2;
-				m_avPath[1].col = nCol1;
-				return true;
-			}
-			else return false;
+	if ((graph.GetVertex(nV1) == BLANK) && (graph.GetVertex(nV2) == BLANK))
 		return false;
+
+	//得到顶点数
+	int nVexnum = graph.Vexnum();
+
+	//遍历图中nV1行，从0列到nVexnum列值为true的点
+	int nVi;
+	for (nVi = 0; nVi < nVexnum; nVi++)
+	{
+		if (graph.GetArc(nV1, nVi) && !IsExist(nVi))
+		{
+			PushVertex(nVi);
+			
+			if (m_nCorner > 2)
+			{
+				PopVertex();
+				continue;
+			}
+							
+			if (nVi != nV2)
+			{
+				//若中间顶点不为空
+				if (graph.GetVertex(nVi) != BLANK)
+				{
+					PopVertex();
+					continue;
+				}
+				//若nVi是一个已消除的顶点，则判断(nVi,nV2)是否连通
+				if (SearchPath(graph, nVi, nV2))
+				{
+					return true;
+				}
+			}
+			else //若nVi==nV2,表明已找到连通路径
+			{
+				return true;
+			}
+		}
 	}
-	else {
-		if (LintY(anMap, nRow1, nRow2, nCol1) && anMap[nRow2][nCol1] == BLANK)
-			if (LintX(anMap, nRow2, nCol2, nCol1))
-			{
-				m_VexNum = 3;
-				m_avPath[1].row = nRow2;
-				m_avPath[1].col = nCol1;
-				return true;
-			}
-			else
-				k = false;
-		else
-			k = false;
-
-		if (LintX(anMap, nRow1, nCol2, nCol1) && anMap[nRow1][nCol2] == BLANK)
-			if (LintY(anMap, nRow1, nRow2, nCol2))
-			{
-				m_VexNum = 3;
-				m_avPath[1].col = nCol2;
-				m_avPath[1].row = nRow1;
-				return true;
-			}
-			else 
-				return false;
-		return false;
-	}*/
-
+	PopVertex();
 	return false;
 }
 
-bool CGameLogic::TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2)
+bool CGameLogic::IsExist(int v)
 {
-	/*int nRow1;
-	int nCol1;
-	int nRow2;
-	int nCol2;
-	bool k = false;
-
-	if (v2.row >= v1.row)
-	{
-		nRow1 = v1.row;
-		nCol1 = v1.col;
-		nRow2 = v2.row;
-		nCol2 = v2.col;
-	}
-	else
-	{
-		nRow1 = v2.row;
-		nCol1 = v2.col;
-		nRow2 = v1.row;
-		nCol2 = v1.col;
-	}
-
-	if (nCol2 > nCol1)
-	{
-		for (int i = nRow1 + 1; i < nRow2; i++)
-			if (LintX(anMap, i, nCol1 - 1, nCol2 + 1))
-				if (LintY(anMap, nRow1, i, nCol1))
-					if (LintY(anMap, i, nRow2, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = i;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = i;
-						return true;
-					}
-
-		for (int i = nCol1 + 1; i < nCol2; i++)
-			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
-				if (LintX(anMap, nRow1, nCol1, i))
-					if (LintY(anMap, nRow2, i, nCol2))
-					{
-						m_avPath[1].col = i;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = i;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-
-		for (int i = nRow1 - 1; i >= -1; i--)
-		{
-			if (i == -1)
-				if (LintY(anMap, -1, nRow1, nCol1))
-					if (LintY(anMap, -1, nRow2, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = -1;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = -1;
-						return true;
-					}
-
-			if (LintX(anMap, i, nCol1 - 1, nCol2 + 1))
-				if (LintY(anMap, i, nRow1, nCol1))
-					if (LintY(anMap, i, nRow2, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = i;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = i;
-						return true;
-					}
-		}
-
-		for (int i = nRow2 + 1; i <= 4; i++)
-		{
-			if (i == 4)
-				if (LintY(anMap, nRow1, 4, nCol1))
-					if (LintY(anMap, nRow2, 4, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = 4;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = 4;
-						return true;
-					}
-
-			if (LintX(anMap, i, nCol1 - 1, nCol2 + 1))
-				if (LintY(anMap, nRow1, i, nCol1))
-					if (LintY(anMap, nRow2, i, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = i;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = i;
-						return true;
-					}
-		}
-
-		for (int i = nCol1 - 1; i >= -1; i--)
-		{
-			if (i == -1)
-				if (LintX(anMap, nRow1, -1, nCol1))
-					if (LintX(anMap, nRow2, -1, nCol2))
-					{
-						m_avPath[1].col = -1;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = -1;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-
-			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
-				if (LintX(anMap, nRow1, i, nCol1))
-					if (LintX(anMap, nRow2, i, nCol2))
-					{
-						m_avPath[1].col = i;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = i;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-		}
-
-		for (int i = nCol2 + 1; i <= 4; i++)
-		{
-			if (i == 4)
-				if (LintX(anMap, nRow1, nCol1, 4))
-					if (LintX(anMap, nRow2, nCol2, 4))
-					{
-						m_avPath[1].col = 4;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = 4;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-
-			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
-				if (LintX(anMap, nRow1, nCol1, i))
-					if (LintX(anMap, nRow2, nCol2, i))
-					{
-						m_avPath[1].col = i;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = i;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-		}
-	}
-	else
-	{
-		for (int i = nRow1 + 1; i < nRow2; i++)
-			if (LintX(anMap, i, nCol2 - 1, nCol1 + 1))
-				if (LintY(anMap, nRow1, i, nCol1))
-					if (LintY(anMap, i, nRow2, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = i;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = i;
-						return true;
-					}
-
-		for (int i = nCol2 + 1; i < nCol1; i++)
-			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
-				if (LintX(anMap, nRow2, nCol2, i))
-					if (LintY(anMap, nRow1, i, nCol1))
-					{
-						m_avPath[1].col = i;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = i;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-
-		for (int i = nRow1 - 1; i >= -1; i--)
-		{
-			if (i == -1)
-				if (LintY(anMap, -1, nRow1, nCol1))
-					if (LintY(anMap, -1, nRow2, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = -1;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = -1;
-						return true;
-					}
-
-			if (LintX(anMap, i, nCol2 - 1, nCol1 + 1))
-				if (LintY(anMap, i, nRow1, nCol1))
-					if (LintY(anMap, i, nRow2, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = i;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = i;
-						return true;
-					}
-
-		}
-
-		for (int i = nRow2 + 1; i <= 4; i++)
-		{
-			if (i == 4)
-				if (LintY(anMap, nRow1, 4, nCol1))
-					if (LintY(anMap, nRow2, 4, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = 4;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = 4;
-						return true;
-					}
-
-			if (LintX(anMap, i, nCol2 - 1, nCol1 + 1))
-				if (LintY(anMap, nRow1, i, nCol1))
-					if (LintY(anMap, nRow2, i, nCol2))
-					{
-						m_avPath[1].col = nCol1;
-						m_avPath[1].row = i;
-						m_avPath[2].col = nCol2;
-						m_avPath[2].row = i;
-						return true;
-					}
-		}
-
-		for (int i = nCol2 - 1; i >= -1; i--)
-		{
-			if (i == -1)
-				if (LintX(anMap, nRow1, -1, nCol1))
-					if (LintX(anMap, nRow2, -1, nCol2))
-					{
-						m_avPath[1].col = -1;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = -1;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-
-			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
-				if (LintX(anMap, nRow1, i, nCol1))
-					if (LintX(anMap, nRow2, i, nCol2))
-					{
-						m_avPath[1].col = i;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = i;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-		}
-
-		for (int i = nCol2 + 1; i <= 4; i++)
-		{
-			if (i == 4)
-				if (LintX(anMap, nRow1, nCol1, 4))
-					if (LintX(anMap, nRow2, nCol2, 4))
-					{
-						m_avPath[1].col = 4;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = 4;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-
-			if (LintY(anMap, nRow1 - 1, nRow2 + 1, i))
-				if (LintX(anMap, nRow1, nCol1, i))
-					if (LintX(anMap, nRow2, nCol2, i))
-					{
-						m_avPath[1].col = i;
-						m_avPath[1].row = nRow1;
-						m_avPath[2].col = i;
-						m_avPath[2].row = nRow2;
-						return true;
-					}
-		}
-	}*/
-
-
+	for (int i = 0; i < m_nVexnum; i++)
+		if (m_anPath[i] == v)
+			return true;
 	return false;
+}
+
+bool CGameLogic::IsCornor()
+{
+	if (m_nVexnum < 3)
+		return false;
+	int v1 = m_anPath[m_nVexnum - 3];
+	int v2 = m_anPath[m_nVexnum - 2];
+	int v3 = m_anPath[m_nVexnum - 1];
+	if (abs(v1 - v2) != abs(v2 - v3))
+	{
+		return true;
+	}
+	else 
+		return false;
 }
 

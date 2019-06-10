@@ -37,6 +37,7 @@ protected:
 	CRect m_rtGameRect;		//游戏区域大小
 
 	CGameControl gamecontrol;
+	bool m_bPlaying;		//表示是否正在游戏
 
 	DECLARE_MESSAGE_MAP()
 public:

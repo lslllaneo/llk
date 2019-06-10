@@ -3,6 +3,7 @@
 
 CGraph::CGraph(void)
 {
+	m_nVexnum = 36;
 }
 
 CGraph::~CGraph(void)
@@ -19,25 +20,44 @@ void CGraph::InitGraph()
 	}
 }
 
-bool CGraph::GetVer(Vertex v1, Vertex v2)
+
+void CGraph::AddVertex(Vertex v)
 {
-	if (m_Vertices[v1.row * 4 + v1.col] == m_Vertices[v2.row * 4 + v2.col])
-		return true;
-	return false;
+	m_Vertices[v.row * 6 + v.col] = v.info;
 }
 
-void CGraph::SetVertex(Vertex v)
+int CGraph::GetVertex(int nIndex)
 {
-	m_Vertices[v.row * 4 + v.col] = v.info;
+	return m_Vertices[nIndex];
 }
 
-void CGraph::GetInfo(Vertex& v)
+void CGraph::AddArc(int nV1Index, int nV2Index)
 {
-	v.info = m_Vertices[v.row * 4 + v.col];
+	m_AdjMatrix[nV1Index][nV2Index] = true;
+	m_AdjMatrix[nV2Index][nV1Index] = true;
 }
 
-void CGraph::SetAdj(Vertex& v1, Vertex& v2)
+int CGraph::Vexnum()
 {
-	m_AdjMatrix[v1.row * 4 + v1.col][v2.row * 4 + v2.col] = true;
-	m_AdjMatrix[v2.row * 4 + v2.col][v1.row * 4 + v1.col] = true;
+	return m_nVexnum;
+}
+
+void CGraph::UpdateVertex(int nIndex, int nInfo)
+{
+	m_Vertices[nIndex] = nInfo;
+}
+
+bool CGraph::GetArc(int nV1Index, int nV2Index)
+{
+	return m_AdjMatrix[nV1Index][nV2Index];
+}
+
+void CGraph::ClearGraph()
+{
+	for (int i = 0; i < MAX_VERTEX_NUM; i++)
+	{
+		m_Vertices[i] = -1;		//初始化顶点
+		for (int j = 0; j < MAX_VERTEX_NUM; j++)
+			m_AdjMatrix[i][j] = false;		//初始化边
+	}
 }

@@ -7,24 +7,23 @@
 class CGameLogic
 {
 protected:
-	Vertex m_avPath[4];		//保存在进行连接判断时所经过的顶点
-	int m_VexNum;			//顶点数
+	int m_anPath[36];						//保存连通路径的顶点索引
+	int m_nCorner;		//保存路径数组m_anPath中的拐点数
+	int m_nVexnum;        
 
 public: 
 	CGameLogic();
 	void InitMap(CGraph& graph);
+	void UpdateArc(CGraph& graph, Vertex v);				//判断v与其相邻顶点是否有边，有边则更新
 	bool IsLink(CGraph& graph, Vertex v1, Vertex v2);		//判断两个图片是否可连接
 	void Clear(CGraph& graph, Vertex v1, Vertex v2);		//若可连接则将顶点值置为空
-	int GetVexPath(Vertex avPath[4]);		//获取得到路径avPath[4]，并通过参数返回给调用函数，通过返回值返回顶点数
+	int GetVexPath(Vertex avPath[16]);		//获取得到路径avPath[4]，并通过参数返回给调用函数，通过返回值返回顶点数
+	bool IsBlank(CGraph& g);
 
 protected:
-	void PushVertex();		//添加一个路径顶点
+	void PushVertex(int n);		//添加一个路径顶点,并判断添加后是否形成一个拐点
 	void PopVertex();		//取出一个顶点
-	//bool LinkInRow(int anMap[][4], Vertex v1, Vertex v2);		//判断横向是否连通
-	//bool LinkInCol(int anMap[][4], Vertex v1, Vertex v2);		//判断纵向是否连通
-	bool OneCornerLink(int anMap[][4], Vertex v1, Vertex v2);		//一个拐点连通判断
-	bool TwoCornerLink(int anMap[][4], Vertex v1, Vertex v2);		//两个拐点连通判断
-	//bool LintY(int anMap[][4], int nRow1, int nRow2, int nCol);		//直线连通Y轴
-	//bool LintX(int anMap[][4], int nRow, int nCol1, int nCol2);		//直线连通X轴
-
+	bool SearchPath(CGraph game, int nV1, int nV2);		//采用深度优先算法判断v1、v2是否连通
+	bool IsExist(int v);		//判断索引为v的点是否保存在连通数组m_avPath中
+	bool IsCornor();		//判断路径数组中的相邻三个点是否构成一个拐点
 };
