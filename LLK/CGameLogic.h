@@ -15,10 +15,12 @@ public:
 	CGameLogic();
 	void InitMap(CGraph& graph);
 	void UpdateArc(CGraph& graph, Vertex v);				//判断v与其相邻顶点是否有边，有边则更新
-	bool IsLink(CGraph& graph, Vertex v1, Vertex v2);		//判断两个图片是否可连接
+	bool IsLink(CGraph& graph, int nV1, int nV2);		//判断两个图片是否可连接
 	void Clear(CGraph& graph, Vertex v1, Vertex v2);		//若可连接则将顶点值置为空
-	int GetVexPath(Vertex avPath[16]);		//获取得到路径avPath[4]，并通过参数返回给调用函数，通过返回值返回顶点数
+	int GetVexPath(Vertex avPath[MAX_VERTEX_NUM]);		//获取得到路径avPath[4]，并通过参数返回给调用函数，通过返回值返回顶点数
 	bool IsBlank(CGraph& g);
+	bool SearchValidPath(CGraph& g);				//寻找可以连接的两点
+	void ResetGraph(CGraph& g);		//重排
 
 protected:
 	void PushVertex(int n);		//添加一个路径顶点,并判断添加后是否形成一个拐点

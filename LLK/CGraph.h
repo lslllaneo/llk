@@ -7,7 +7,6 @@ public:
 	CGraph(void);
 	~CGraph(void);
 
-#define MAX_VERTEX_NUM 36
 	typedef int Vertices[MAX_VERTEX_NUM];
 	typedef bool AdjMatrix[MAX_VERTEX_NUM][MAX_VERTEX_NUM];
 	void InitGraph();

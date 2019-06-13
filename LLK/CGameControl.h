@@ -16,8 +16,10 @@ public:
 	int GetElement(int nRow, int nCol);
 	void SetFirstPoint(int nRow, int nCol);		//设置第一个点
 	void SetSecPoint(int nRow, int nCol);		//设置第二个点
-	bool Link(Vertex avPath[36], int& nVexnum);		//连接判断函数
+	bool Link(Vertex avPath[MAX_VERTEX_NUM], int& nVexnum);		//连接判断函数
 	void GetFirstPoint(Vertex &v1);
-	bool IsWin();
+	BOOL IsWin(int nTime);
+	bool Help(Vertex avPath[36], int& nVexnum);		//提示
+	bool ResetGraph();			//重排游戏地图
 };
 

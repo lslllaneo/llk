@@ -3,7 +3,7 @@
 
 CGraph::CGraph(void)
 {
-	m_nVexnum = 36;
+	m_nVexnum = MAX_VERTEX_NUM;
 }
 
 CGraph::~CGraph(void)
@@ -23,7 +23,7 @@ void CGraph::InitGraph()
 
 void CGraph::AddVertex(Vertex v)
 {
-	m_Vertices[v.row * 6 + v.col] = v.info;
+	m_Vertices[v.row * MAX_COL + v.col] = v.info;
 }
 
 int CGraph::GetVertex(int nIndex)

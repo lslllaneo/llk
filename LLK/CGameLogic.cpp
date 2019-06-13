@@ -1,6 +1,7 @@
 #include "afxdialogex.h"
 #include "pch.h"
 #include "CGameLogic.h"
+#include <cmath>
 
 CGameLogic::CGameLogic()
 {
@@ -13,18 +14,73 @@ CGameLogic::CGameLogic()
 void CGameLogic::InitMap(CGraph& graph)
 {
 	//游戏地图初始化，固定的值
-	int anTemp[6][6] = { -1,-1,-1,-1,-1,-1,-1,2,0,1,3,-1,-1,2,2,1,3,-1,-1,2,1,0,0,-1,-1,1,3,0,3,-1,-1,-1,-1,-1,-1,-1 };
-	for (int i = 0; i < 6; i++)
-		for (int j = 0; j < 6; j++)
+	int anTemp[MAX_VERTEX_NUM];
+	for (int i = 0; i < MAX_VERTEX_NUM; i++)
+		anTemp[i] = BLANK;
+
+	srand((int)time(NULL));
+
+	//多少花色
+	for (int i = 1; i <= MAX_PIC_NUM; i++)
+	{
+		//每种花色的重复数
+		for (int j = 1; j <= REPEAT_NUM; j++)
+		{
+			anTemp[i * MAX_COL + j] = i - 1;
+		}
+	}
+
+	for (int i = 1; i <= MAX_PIC_NUM; i++)
+	{
+		//每种花色的重复数
+		for (int j = 1; j <= REPEAT_NUM; j++)
+		{
+			int nIndex1;
+			int nIndex2;
+
+			while (true)
+			{
+				nIndex1 = rand() % MAX_VERTEX_NUM;
+				int row, col;
+				row = nIndex1 / MAX_COL;
+				col = nIndex1 % MAX_COL;
+				if ((row == 0 || row == MAX_ROW - 1))
+					continue;
+				if ((col == 0 || col == MAX_COL - 1))
+					continue;
+				break;
+			}
+
+			while (true)
+			{
+				nIndex2 = rand() % MAX_VERTEX_NUM;
+				int row, col;
+				row = nIndex2 / MAX_COL;
+				col = nIndex2 % MAX_COL;
+				if ((row == 0 )||( row == MAX_ROW - 1))
+					continue;
+				if ((col == 0) || (col == MAX_COL - 1))
+					continue;
+				break;
+			}
+
+			int nTemp = anTemp[nIndex1];
+			anTemp[nIndex1] = anTemp[nIndex2];
+			anTemp[nIndex2] = nTemp;
+		}
+	}
+
+	for (int i = 0; i < MAX_ROW; i++)
+		for (int j = 0; j < MAX_COL; j++)
 		{
 			Vertex v;
 			v.row = i;
 			v.col = j;
-			v.info = anTemp[i][j];
+			v.info = anTemp[i * MAX_COL + j];
 			graph.AddVertex(v);
 		}
-	for (int i = 0; i < 6; i++)
-		for (int j = 0; j < 6; j++)
+	for (int i = 0; i < MAX_ROW; i++)
+		for (int j = 0; j < MAX_COL; j++)
 		{
 			Vertex v;
 			v.row = i;
@@ -33,12 +89,61 @@ void CGameLogic::InitMap(CGraph& graph)
 		}
 }
 
+void CGameLogic::ResetGraph(CGraph& g)
+{
+	srand((int)time(NULL));
+
+	for (int j = 1; j <= 100; j++)
+	{
+		int nIndex1;
+		int nIndex2;
+
+		while (true)
+		{
+			nIndex1 = rand() % MAX_VERTEX_NUM;
+			int row, col;
+			row = nIndex1 / MAX_COL;
+			col = nIndex1 % MAX_COL;
+			if ((row == 0 || row == MAX_ROW - 1))
+				continue;
+			if ((col == 0 || col == MAX_COL - 1))
+				continue;
+			break;
+		}
+
+		while (true)
+		{
+			nIndex2 = rand() % MAX_VERTEX_NUM;
+			int row, col;
+			row = nIndex2 / MAX_COL;
+			col = nIndex2 % MAX_COL;
+			if ((row == 0) || (row == MAX_ROW - 1))
+				continue;
+			if ((col == 0) || (col == MAX_COL - 1))
+				continue;
+			break;
+		}
+
+		int nTemp = g.GetVertex(nIndex1);
+		Vertex v;
+		v.row = nIndex1 / MAX_COL;
+		v.col = nIndex1 % MAX_COL;
+		v.info = g.GetVertex(nIndex2);
+		g.AddVertex(v);
+		v.row = nIndex2 / MAX_COL;
+		v.col = nIndex2 % MAX_COL;
+		v.info = nTemp;
+		g.AddVertex(v);
+		}
+
+}
+
 void CGameLogic::UpdateArc(CGraph& graph, Vertex v)
 {
-	int nV1Index = v.row * 6 + v.col;
+	int nV1Index = v.row * MAX_COL + v.col;
 	if (v.row > 0)
 	{
-		int nV2Index = nV1Index - 6;
+		int nV2Index = nV1Index - MAX_COL;
 		if (graph.GetVertex(nV1Index) == graph.GetVertex(nV2Index))
 			graph.AddArc(nV1Index, nV2Index);
 		if (graph.GetVertex(nV1Index) == BLANK)
@@ -52,15 +157,15 @@ void CGameLogic::UpdateArc(CGraph& graph, Vertex v)
 		if (graph.GetVertex(nV1Index) == BLANK)
 			graph.AddArc(nV1Index, nV2Index);
 	}
-	if (v.row < 5)
+	if (v.row < MAX_ROW - 1)
 	{
-		int nV2Index = nV1Index + 6;
+		int nV2Index = nV1Index + MAX_COL;
 		if (graph.GetVertex(nV1Index) == graph.GetVertex(nV2Index))
 			graph.AddArc(nV1Index, nV2Index);
 		if (graph.GetVertex(nV1Index) == BLANK)
 			graph.AddArc(nV1Index, nV2Index);
 	}
-	if (v.col < 5)
+	if (v.col < MAX_COL - 1)
 	{
 		int nV2Index = nV1Index + 1;
 		if (graph.GetVertex(nV1Index) == graph.GetVertex(nV2Index))
@@ -71,11 +176,9 @@ void CGameLogic::UpdateArc(CGraph& graph, Vertex v)
 }
 
 
-bool CGameLogic::IsLink(CGraph& graph, Vertex v1, Vertex v2)
+bool CGameLogic::IsLink(CGraph& graph, int nV1, int nV2)
 {
 	
-	int nV1 = v1.row * 6 + v1.col;
-	int nV2 = v2.row * 6 + v2.col;
 	PushVertex(nV1);
 	return SearchPath(graph, nV1, nV2);
 		
@@ -85,8 +188,8 @@ bool CGameLogic::IsLink(CGraph& graph, Vertex v1, Vertex v2)
 
 void CGameLogic::Clear(CGraph& graph, Vertex v1, Vertex v2)
 {
-	int nV1Index = v1.row * 6 + v1.col;
-	int nV2Index = v2.row * 6 + v2.col;
+	int nV1Index = v1.row * MAX_COL + v1.col;
+	int nV2Index = v2.row * MAX_COL + v2.col;
 	graph.UpdateVertex(nV1Index, BLANK);
 	graph.UpdateVertex(nV2Index, BLANK);
 	UpdateArc(graph, v1);
@@ -94,13 +197,13 @@ void CGameLogic::Clear(CGraph& graph, Vertex v1, Vertex v2)
 }
 
 
-int CGameLogic::GetVexPath(Vertex avPath[16])
+int CGameLogic::GetVexPath(Vertex avPath[MAX_VERTEX_NUM])
 {
 	int i;
 	for (i = 0; i < m_nVexnum; i++)
 	{
-		avPath[i].row = m_anPath[i] / 6;
-		avPath[i].col = m_anPath[i] % 6;
+		avPath[i].row = m_anPath[i] / MAX_COL;
+		avPath[i].col = m_anPath[i] % MAX_COL;
 
 	}
 	m_nVexnum = 0;
@@ -110,15 +213,35 @@ int CGameLogic::GetVexPath(Vertex avPath[16])
 
 bool CGameLogic::IsBlank(CGraph& g)
 {
-	for (int i = 1; i < 5; i++)
-		for (int j = 1; j < 5; j++)
+	for (int i = 1; i < MAX_ROW - 1; i++)
+		for (int j = 1; j < MAX_COL - 1; j++)
 		{
-			int nIndex = i * 6 + j;
+			int nIndex = i * MAX_COL + j;
 			if (g.GetVertex(nIndex) != -1)
 				return false;
 		}
 	return true;
 }
+
+bool CGameLogic::SearchValidPath(CGraph& g)
+{
+	int nVexnum = g.Vexnum();
+	for (int i = 0; i < nVexnum; i++)
+	{
+		if (g.GetVertex(i) == BLANK)	continue;
+		for (int j = i + 1; j < nVexnum; j++)
+		{
+			if (g.GetVertex(j) == BLANK)	continue;
+			if (g.GetVertex(j) == g.GetVertex(i))
+			{
+				if (IsLink(g, i, j))
+					return true;
+			}
+		}
+	}
+	return false;
+}
+
 
 
 void CGameLogic::PushVertex(int n)

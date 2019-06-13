@@ -27,6 +27,8 @@ protected:
 	CDC m_dcBG;
 	CDC m_dcElement;
 	CDC m_dcMask;
+	CDC m_dcCache;
+	CDC m_dcPause;
 
 
 	CSize m_sizeElem;		//元素图片大小
@@ -38,6 +40,9 @@ protected:
 
 	CGameControl gamecontrol;
 	bool m_bPlaying;		//表示是否正在游戏
+	bool m_bPause;		//表示游戏是否暂停
+	CProgressCtrl m_GameProcess;
+
 
 	DECLARE_MESSAGE_MAP()
 public:
@@ -53,4 +58,13 @@ public:
 protected:
 	void DrawTipFrame(int nRow, int nCol);
 	void DrawTipLine(Vertex avPath[], int nVexnum);
+	void JudgeWin();
+	void DrawGameTime();		//绘制游戏时间
+
+public:
+	afx_msg void OnClickedBtnTip();
+	afx_msg void OnClickedBtnReset();
+	afx_msg void OnClickedBtnPause();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnEnChangeLeftTime();
 };
