@@ -212,13 +212,15 @@ void CGameDlg::UpdateWindow()
 
 void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 {
+	if (m_bPause)
+		return CDialogEx::OnLButtonUp(nFlags, point);
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	if ((point.x < m_ptGameTop.x) || (point.y < m_ptGameTop.y))
+	if ((point.x < m_ptGameTop.x + 40) || (point.y < m_ptGameTop.y + 40))
 		return CDialogEx::OnLButtonUp(nFlags, point);
 
 	int nRow = (point.y - m_ptGameTop.y) / m_sizeElem.cy;
 	int nCol = (point.x - m_ptGameTop.x) / m_sizeElem.cx;
-	if (nRow > MAX_ROW - 1 || nCol > MAX_COL - 1)
+	if (nRow >= MAX_ROW - 1 || nCol >= MAX_COL - 1)
 	{
 		return CDialogEx::OnLButtonUp(nFlags, point);
 	}
@@ -400,14 +402,3 @@ void CGameDlg::OnTimer(UINT_PTR nIDEvent)
 	CDialogEx::OnTimer(nIDEvent);
 }
 
-
-
-void CGameDlg::OnEnChangeLeftTime()
-{
-	// TODO:  如果该控件是 RICHEDIT 控件，它将不
-	// 发送此通知，除非重写 CDialogEx::OnInitDialog()
-	// 函数并调用 CRichEditCtrl().SetEventMask()，
-	// 同时将 ENM_CHANGE 标志“或”运算到掩码中。
-
-	// TODO:  在此添加控件通知处理程序代码
-}
