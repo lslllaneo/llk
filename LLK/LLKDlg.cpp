@@ -65,10 +65,9 @@ BEGIN_MESSAGE_MAP(CLLKDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-	//ON_BN_CLICKED(IDC_BUTTON2, &CLLKDlg::OnBnClickedButton2)
-	//ON_BN_CLICKED(IDC_BUTTON1, &CLLKDlg::OnBnClickedButton1)
 	ON_BN_CLICKED(RANK, &CLLKDlg::OnBnClickedRank)
 	ON_BN_CLICKED(IDC_BTN_BASIC, &CLLKDlg::OnClickedBtnBasic)
+	ON_BN_CLICKED(IDC_BTN_RELAX, &CLLKDlg::OnClickedBtnRelax)
 END_MESSAGE_MAP()
 
 
@@ -189,8 +188,34 @@ void CLLKDlg::OnBnClickedRank()
 void CLLKDlg::OnClickedBtnBasic()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	Flag flag;
+	flag.bProp = false;
+	flag.bScore = false;
+	flag.bTimer = true;
+	flag.szTitle = _T("基本模式");
 	this->ShowWindow(SW_HIDE);
+	CBasicGame* basic = new CBasicGame;
+	basic->SetGameFlag(flag);
 	CGameDlg dlg;
+	dlg.SetFlag(basic);
 	dlg.DoModal();
  	this->ShowWindow(SW_SHOW);
+}
+
+
+void CLLKDlg::OnClickedBtnRelax()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	Flag flag;
+	flag.bProp = true;
+	flag.bScore = true;
+	flag.bTimer = false;
+	flag.szTitle = _T("休闲模式");
+	this->ShowWindow(SW_HIDE);
+	CEasyGame* easy = new CEasyGame;
+	easy->SetGameFlag(flag);
+	CGameDlg dlg;
+	dlg.SetFlag(easy);
+	dlg.DoModal();
+	this->ShowWindow(SW_SHOW);
 }

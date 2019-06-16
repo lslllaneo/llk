@@ -1,7 +1,6 @@
 #pragma once
 
 #include "global.h"
-#include "CGameControl.h"
 #include "CGraph.h"
 
 class CGameLogic

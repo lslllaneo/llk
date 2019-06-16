@@ -33,10 +33,10 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+	
 public:
-	afx_msg void OnBnClickedButton2();
-	afx_msg void OnBnClickedButton1();
 	afx_msg void OnBnClickedRank();
 	void InitBackground();
 	afx_msg void OnClickedBtnBasic();
+	afx_msg void OnClickedBtnRelax();
 };

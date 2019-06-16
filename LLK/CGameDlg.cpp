@@ -32,6 +32,8 @@ CGameDlg::CGameDlg(CWnd* pParent /*=nullptr*/)
 	m_rtGameRect.left = m_ptGameTop.x;
 	m_rtGameRect.right = m_rtGameRect.left + m_sizeElem.cx * MAX_COL + 100;
 	m_rtGameRect.bottom = m_rtGameRect.top + m_sizeElem.cy * MAX_ROW + 100;
+
+	//((CGameDlg *)m_pGameC)->UpdateData(true);
 }
 
 CGameDlg::~CGameDlg()
@@ -53,7 +55,6 @@ BEGIN_MESSAGE_MAP(CGameDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BTN_RESET, &CGameDlg::OnClickedBtnReset)
 	ON_BN_CLICKED(IDC_BTN_PAUSE, &CGameDlg::OnClickedBtnPause)
 	ON_WM_TIMER()
-	//ON_EN_CHANGE(IDC_LEFT_TIME, &CGameDlg::OnEnChangeLeftTime)
 END_MESSAGE_MAP()
 
 
@@ -87,6 +88,11 @@ void CGameDlg::InitBackground()
 
 }
 
+void CGameDlg::SetFlag(CGameControl* control)
+{
+	m_pGameC = control;
+}
+
 void CGameDlg::DrawGameTime()
 {
 	CPaintDC dc(this);
@@ -95,7 +101,7 @@ void CGameDlg::DrawGameTime()
 	int time = m_GameProcess.GetPos();
 
 	CString strText;
-	strText.Format(_T("%d"), time);
+	strText.Format(_T("剩余时间:%d"), time);
 	SetDlgItemText(IDC_LEFT_TIME, strText);
 	//dc.SelectObject(oldFont);
 }
@@ -106,7 +112,23 @@ BOOL CGameDlg::OnInitDialog()
 	CDialogEx::OnInitDialog();
 
 
-	// TODO:  在此添加额外的初始化
+	//获取控件显示状态
+	m_flag = m_pGameC->GetGameFlag();
+
+	//设置控件显示状态
+	if (!m_flag.bProp)
+		this->GetDlgItem(IDC_BTN_PROP)->ShowWindow(FALSE);
+	else 
+		this->GetDlgItem(IDC_BTN_PROP)->ShowWindow(TRUE);
+	if (!m_flag.bScore)
+		this->GetDlgItem(IDC_BTN_SCORE)->ShowWindow(FALSE);
+	else
+		this->GetDlgItem(IDC_BTN_SCORE)->ShowWindow(TRUE);
+	if (!m_flag.bTimer)
+	{
+		this->GetDlgItem(IDC_LEFT_TIME)->ShowWindow(FALSE);
+		this->GetDlgItem(IDC_GAME_TIME)->ShowWindow(FALSE);
+	}
 
 	InitBackground();
 	InitElement();
@@ -146,7 +168,7 @@ void CGameDlg::InitElement()
 void CGameDlg::OnClickedBtnBegin()
 {
 	// 初始化游戏地图
-	gamecontrol.StartGame();
+	basic_control.StartGame();
 	m_bPlaying = true;
 	this->GetDlgItem(IDC_BTN_BEGIN)->EnableWindow(FALSE);
 
@@ -156,8 +178,11 @@ void CGameDlg::OnClickedBtnBegin()
 	//游戏表示设为true
 	m_bPlaying = true;
 	//初始化进度条
-	this->GetDlgItem(IDC_GAME_TIME)->ShowWindow(TRUE);
-	this->GetDlgItem(IDC_LEFT_TIME)->ShowWindow(TRUE);
+	if (m_flag.bTimer)
+	{
+		this->GetDlgItem(IDC_GAME_TIME)->ShowWindow(TRUE);
+		this->GetDlgItem(IDC_LEFT_TIME)->ShowWindow(TRUE);
+	}
 	m_GameProcess.SetRange(0, 60 * 5);
 	m_GameProcess.SetStep(-1);
 	m_GameProcess.SetPos(60 * 5);
@@ -183,7 +208,7 @@ void CGameDlg::UpdateMap()
 	for (int i = 1; i < MAX_ROW; i++)
 		for (int j = 1; j < MAX_COL; j++)
 		{
-			int nInfo = gamecontrol.GetElement(i, j);
+			int nInfo = basic_control.GetElement(i, j);
 			//将背景与掩码相或，边保留，图像区域为1
 			m_dcMem.BitBlt(nLeft + j * nElemW, nTop + i * nElemH, nElemW, nElemH, &m_dcMask, 0, nInfo * nElemH, SRCPAINT);
 
@@ -230,22 +255,22 @@ void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		DrawTipFrame(nRow, nCol);
 
-		gamecontrol.SetFirstPoint(nRow, nCol);
+		basic_control.SetFirstPoint(nRow, nCol);
 	}
 	else
 	{
 		Vertex avPath[MAX_VERTEX_NUM];
-		gamecontrol.GetFirstPoint(avPath[0]);
+		basic_control.GetFirstPoint(avPath[0]);
 
 		DrawTipFrame(nRow, nCol);
 
 		avPath[1].row = nRow;
 		avPath[1].col = nCol;
-		gamecontrol.SetSecPoint(nRow, nCol);
+		basic_control.SetSecPoint(nRow, nCol);
 
 		//判断是否是相同图片
 		int nVexnum = 0;
-		if (gamecontrol.Link(avPath, nVexnum))
+		if (basic_control.Link(avPath, nVexnum))
 		{
 			DrawTipLine(avPath, nVexnum);
 			UpdateMap();
@@ -260,6 +285,11 @@ void CGameDlg::OnLButtonUp(UINT nFlags, CPoint point)
 	JudgeWin();
 
 	//CDialogEx::OnLButtonUp(nFlags, point);
+}
+
+void CGameDlg::SetGameModel(CGameControl* pGameC)
+{
+	m_pGameC = pGameC;
 }
 
 
@@ -299,7 +329,7 @@ void CGameDlg::DrawTipLine(Vertex avPath[], int nVexnum)
 
 void CGameDlg::JudgeWin()
 {
-	BOOL bGameStatus = gamecontrol.IsWin(m_GameProcess.GetPos());
+	BOOL bGameStatus = basic_control.IsWin(m_GameProcess.GetPos());
 
 	if (bGameStatus == GAME_PLAY)
 		return;
@@ -330,7 +360,7 @@ void CGameDlg::OnClickedBtnTip()
 	// TODO: 在此添加控件通知处理程序代码
 	Vertex avPath[MAX_VERTEX_NUM];
 	int nVexnum = 0;
-	if (gamecontrol.Help(avPath, nVexnum))
+	if (basic_control.Help(avPath, nVexnum))
 	{
 		DrawTipLine(avPath, nVexnum);
 		UpdateMap();
@@ -343,7 +373,7 @@ void CGameDlg::OnClickedBtnTip()
 
 void CGameDlg::OnClickedBtnReset()
 {
-	if (gamecontrol.ResetGraph())
+	if (basic_control.ResetGraph())
 	{
 		UpdateMap();
 	}
@@ -363,16 +393,6 @@ void CGameDlg::OnClickedBtnPause()
 		m_bPause = true;
 		this->GetDlgItem(IDC_BTN_PAUSE)->SetWindowTextW(_T("继续"));
 		
-		CClientDC dc(this);
-
-		//加载BMP图片资源
-		HANDLE hBmpBG = ::LoadImage(NULL, _T("theme\\pictures\\bg.bmp"), IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-		//创建与视频内存兼容的内存DC
-		m_dcCache.CreateCompatibleDC(&dc);
-
-		//将位图资源进入DC
-		m_dcCache.SelectObject(hBmpBG);
 
 		m_dcMem.BitBlt(0, 0, 800, 600, &m_dcBG, 0, 0, SRCCOPY);
 
@@ -401,4 +421,6 @@ void CGameDlg::OnTimer(UINT_PTR nIDEvent)
 	}
 	CDialogEx::OnTimer(nIDEvent);
 }
+
+
 

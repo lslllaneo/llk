@@ -1,10 +1,59 @@
 #include "pch.h"
 #include "CGameControl.h"
 
-void CGameControl::StartGame()
+CGameControl::CGameControl()
+{
+}
+
+CGameControl::~CGameControl()
+{
+}
+
+BOOL CGameControl::IsWin(int nTime)
 {
 	CGameLogic gamelogic;
-	gamelogic.InitMap(m_graph);
+	if (nTime <= 0)
+	{
+		//Çå³ýÍ¼
+		m_graph.ClearGraph();
+		return GAME_LOSE;
+	}
+
+	if (gamelogic.IsBlank(m_graph))
+	{
+		m_graph.ClearGraph();
+		return GAME_SUCCESS;
+	}
+	else
+		return GAME_PLAY;
+}
+
+bool CGameControl::Help(Vertex avPath[36], int& nVexnum)
+{
+	CGameLogic gamelogic;
+	if (gamelogic.IsBlank(m_graph))
+		return false;
+
+	if (gamelogic.SearchValidPath(m_graph))
+	{
+		nVexnum = gamelogic.GetVexPath(avPath);
+		Vertex v1, v2;
+		v1.row = avPath[0].row;
+		v1.col = avPath[0].col;
+		v2.row = avPath[nVexnum - 1].row;
+		v2.col = avPath[nVexnum - 1].col;
+		gamelogic.Clear(m_graph, v1, v2);
+		return true;
+	}
+	return false;
+}
+
+bool CGameControl::ResetGraph()
+{
+
+	CGameLogic logic;
+	logic.ResetGraph(m_graph);
+	return true;
 }
 
 int CGameControl::GetElement(int nRow, int nCol)
@@ -40,41 +89,14 @@ bool CGameControl::Link(Vertex avPath[MAX_VERTEX_NUM], int& nVexnum)
 	CGameLogic gamelogic;
 
 	if (gamelogic.IsLink(m_graph, nV1Index, nV2Index))
-	{ 
-		nVexnum = gamelogic.GetVexPath(avPath);		
+	{
+		nVexnum = gamelogic.GetVexPath(avPath);
 		gamelogic.Clear(m_graph, m_svSelFirst, m_svSelSec);
 		return true;
 	}
 	return false;
 }
 
-bool CGameControl::Help(Vertex avPath[36], int& nVexnum)
-{
-	CGameLogic gamelogic;
-	if (gamelogic.IsBlank(m_graph))
-		return false;
-
-	if (gamelogic.SearchValidPath(m_graph))
-	{
-		nVexnum = gamelogic.GetVexPath(avPath);
-		Vertex v1, v2;
-		v1.row = avPath[0].row;
-		v1.col = avPath[0].col;
-		v2.row = avPath[nVexnum - 1].row;
-		v2.col = avPath[nVexnum - 1].col;
-		gamelogic.Clear(m_graph, v1, v2);
-		return true;
-	}
-	return false;
-}
-
-bool CGameControl::ResetGraph()
-{
-	
-	CGameLogic logic;
-	logic.ResetGraph(m_graph);
-	return true;
-}
 
 void CGameControl::GetFirstPoint(Vertex& v1)
 {
@@ -83,22 +105,14 @@ void CGameControl::GetFirstPoint(Vertex& v1)
 	v1.info = m_svSelFirst.info;
 }
 
-BOOL CGameControl::IsWin(int nTime)
+void CGameControl::SetGameFlag(Flag flag)
 {
-	CGameLogic gamelogic;
-	if (nTime <= 0)
-	{
-		//Çå³ýÍ¼
-		m_graph.ClearGraph();
-		return GAME_LOSE;
-	}
-
-	if (gamelogic.IsBlank(m_graph))
-	{
-		m_graph.ClearGraph();
-		return GAME_SUCCESS;
-	}
-	else 
-		return GAME_PLAY;
+	m_flag = flag;
 }
+
+Flag CGameControl::GetGameFlag()
+{
+	return m_flag;
+}
+
 

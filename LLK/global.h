@@ -1,4 +1,6 @@
 #pragma once
+#include <cstring>
+#include <afxstr.h>
 
 typedef struct  tagVertex
 {
@@ -6,6 +8,14 @@ typedef struct  tagVertex
 	int col;
 	int info;
 }Vertex;
+
+typedef struct tagFlag
+{
+	bool bTimer;		//计时进度条
+	bool bProp;		//道具
+	bool bScore;		//积分
+	CString szTitle;		//对话框标题栏文字
+}Flag;
 
 #define BLANK -1
 #define MAX_ROW 6

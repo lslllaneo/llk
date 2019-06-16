@@ -42,10 +42,16 @@
     <ClInclude Include="CGameLogic.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CGraph.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CBasicGame.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
     <ClInclude Include="CGameControl.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CGraph.h">
+    <ClInclude Include="CEasyGame.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,10 +71,16 @@
     <ClCompile Include="CGameLogic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="CGraph.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CBasicGame.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="CGameControl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="CGraph.cpp">
+    <ClCompile Include="CEasyGame.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

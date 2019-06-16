@@ -187,6 +187,8 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CBasicGame.h" />
+    <ClInclude Include="CEasyGame.h" />
     <ClInclude Include="CGameControl.h" />
     <ClInclude Include="CGameDlg.h" />
     <ClInclude Include="CGameLogic.h" />
@@ -200,6 +202,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CBasicGame.cpp" />
+    <ClCompile Include="CEasyGame.cpp" />
     <ClCompile Include="CGameControl.cpp" />
     <ClCompile Include="CGameDlg.cpp" />
     <ClCompile Include="CGameLogic.cpp" />
